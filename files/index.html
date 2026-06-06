@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <title>Deutsch Meister — German Vocabulary Trainer</title>
+  <meta name="description" content="Interactive German vocabulary and verb training with flashcards, quizzes, and spaced repetition." />
+
+  <!-- PWA & Mobile -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#d4af50" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="DeutschMeister" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-canvas">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="noise-overlay"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-de">DE</span>
+        <span class="logo-sep">✦</span>
+        <span class="logo-text">Deutsch<em>Meister</em></span>
+      </div>
+      <nav class="main-nav" id="mainNav">
+        <button class="nav-btn active" data-view="explorer">
+          <span class="nav-icon">◈</span> Explorer
+        </button>
+        <button class="nav-btn" data-view="flashcards">
+          <span class="nav-icon">⟁</span> Flashcards
+        </button>
+        <button class="nav-btn" data-view="quiz">
+          <span class="nav-icon">◉</span> Quiz
+        </button>
+        <button class="nav-btn" data-view="verbhub">
+          <span class="nav-icon">⌘</span> Verb Hub
+        </button>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">◑</button>
+        <div class="progress-pill" id="headerProgress">
+          <span class="pill-label">Mastered</span>
+          <span class="pill-count" id="masteredCount">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App -->
+  <main class="app-main" id="appMain">
+
+    <!-- ═══ EXPLORER VIEW ═══ -->
+    <section class="view active" id="view-explorer">
+      <div class="view-hero">
+        <h1 class="view-title"><em>Vocabulary</em> Explorer</h1>
+        <p class="view-subtitle">Browse, search, and filter your entire word list.</p>
+      </div>
+      <div class="explorer-controls">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search German or English…" autocomplete="off" />
+          <button class="search-clear" id="searchClear" title="Clear">✕</button>
+        </div>
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-pos="all">All</button>
+          <button class="chip" data-pos="verb">Verbs</button>
+          <button class="chip" data-pos="noun">Nouns</button>
+          <button class="chip" data-pos="adjective">Adjectives</button>
+          <button class="chip" data-pos="adverb">Adverbs</button>
+          <button class="chip" data-pos="other">Other</button>
+        </div>
+        <div class="sort-wrap">
+          <select class="sort-select" id="sortSelect">
+            <option value="alpha-de">A→Z German</option>
+            <option value="alpha-en">A→Z English</option>
+            <option value="pos">By Type</option>
+            <option value="mastered">Mastered Last</option>
+          </select>
+        </div>
+      </div>
+      <div class="explorer-stats" id="explorerStats">
+        <span class="stat-item"><strong id="statShowing">0</strong> showing</span>
+        <span class="stat-divider">·</span>
+        <span class="stat-item"><strong id="statMastered">0</strong> mastered</span>
+        <span class="stat-divider">·</span>
+        <span class="stat-item"><strong id="statTotal">0</strong> total</span>
+      </div>
+      <div class="word-grid" id="wordGrid"></div>
+    </section>
+
+    <!-- ═══ FLASHCARDS VIEW ═══ -->
+    <section class="view" id="view-flashcards">
+      <div class="view-hero">
+        <h1 class="view-title"><em>Flash</em>cards</h1>
+        <p class="view-subtitle">Tap a card to reveal its translation.</p>
+      </div>
+      <div class="fc-controls">
+        <div class="fc-filter-row">
+          <select class="fc-select" id="fcFilter">
+            <option value="all">All Words</option>
+            <option value="verb">Verbs Only</option>
+            <option value="noun">Nouns Only</option>
+            <option value="adjective">Adjectives Only</option>
+            <option value="unmastered">Unmastered Only</option>
+          </select>
+          <button class="btn-outline" id="fcShuffle">⇌ Shuffle</button>
+          <button class="btn-outline" id="fcReset">↺ Reset</button>
+        </div>
+        <div class="fc-progress-bar-wrap">
+          <div class="fc-progress-bar" id="fcProgressBar"></div>
+        </div>
+        <div class="fc-counter" id="fcCounter">Card 1 of 0</div>
+      </div>
+      <div class="fc-stage" id="fcStage">
+        <button class="fc-nav-btn fc-prev" id="fcPrev" title="Previous">‹</button>
+        <div class="fc-card-wrap" id="fcCardWrap">
+          <div class="fc-card" id="fcCard">
+            <div class="fc-face fc-front">
+              <div class="fc-pos-badge" id="fcFrontPos"></div>
+              <div class="fc-word" id="fcFrontWord">–</div>
+              <div class="fc-hint">tap to reveal</div>
+            </div>
+            <div class="fc-face fc-back">
+              <div class="fc-translation" id="fcBackTranslation">–</div>
+              <div class="fc-example" id="fcBackExample"></div>
+              <div class="fc-example-en" id="fcBackExampleEn"></div>
+            </div>
+          </div>
+        </div>
+        <button class="fc-nav-btn fc-next" id="fcNext" title="Next">›</button>
+      </div>
+      <div class="fc-actions">
+        <button class="btn-danger" id="fcMarkWrong">✕ Still Learning</button>
+        <button class="btn-success" id="fcMarkMastered">✓ Mastered</button>
+      </div>
+      <div class="fc-mastered-list-wrap" id="fcMasteredWrap">
+        <h3 class="fc-mastered-title">✦ Mastered Words</h3>
+        <div class="fc-mastered-list" id="fcMasteredList"></div>
+      </div>
+    </section>
+
+    <!-- ═══ QUIZ VIEW ═══ -->
+    <section class="view" id="view-quiz">
+      <div class="view-hero">
+        <h1 class="view-title"><em>Quiz</em> Mode</h1>
+        <p class="view-subtitle">Test your knowledge with multiple choice and spelling challenges.</p>
+      </div>
+
+      <!-- Quiz Setup Screen -->
+      <div class="quiz-setup" id="quizSetup">
+        <div class="setup-grid">
+          <div class="setup-card">
+            <div class="setup-icon">⚙</div>
+            <h3>Quiz Settings</h3>
+            <div class="setup-field">
+              <label>Mode</label>
+              <div class="radio-group">
+                <label class="radio-opt"><input type="radio" name="quizMode" value="mc-de-en" checked /> DE → EN</label>
+                <label class="radio-opt"><input type="radio" name="quizMode" value="mc-en-de" /> EN → DE</label>
+                <label class="radio-opt"><input type="radio" name="quizMode" value="spell" /> Spelling</label>
+                <label class="radio-opt"><input type="radio" name="quizMode" value="mixed" /> Mixed</label>
+              </div>
+            </div>
+            <div class="setup-field">
+              <label>Word Type</label>
+              <select class="fc-select" id="quizPos">
+                <option value="all">All Words</option>
+                <option value="verb">Verbs Only</option>
+                <option value="noun">Nouns Only</option>
+                <option value="adjective">Adjectives Only</option>
+              </select>
+            </div>
+            <div class="setup-field">
+              <label>Questions: <strong id="qCountLabel">10</strong></label>
+              <input type="range" id="qCount" min="5" max="30" value="10" step="5" class="range-input" />
+            </div>
+            <button class="btn-primary big" id="startQuiz">Start Quiz ›</button>
+          </div>
+          <div class="setup-card leaderboard-card">
+            <div class="setup-icon">◎</div>
+            <h3>Your Records</h3>
+            <div id="quizRecords" class="quiz-records"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Active Screen -->
+      <div class="quiz-active hidden" id="quizActive">
+        <div class="quiz-hud">
+          <div class="hud-item">
+            <span class="hud-label">Question</span>
+            <span class="hud-val" id="hudQ">1/10</span>
+          </div>
+          <div class="quiz-progress-bar-wrap">
+            <div class="quiz-progress-bar" id="quizProgressBar"></div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Score</span>
+            <span class="hud-val" id="hudScore">0</span>
+          </div>
+        </div>
+        <div class="quiz-card" id="quizCard">
+          <div class="quiz-mode-tag" id="quizModeTag">DE → EN</div>
+          <div class="quiz-question" id="quizQuestion">–</div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-spell-wrap hidden" id="quizSpellWrap">
+            <input type="text" class="spell-input" id="spellInput" placeholder="Type the German word…" autocomplete="off" autocorrect="off" spellcheck="false" />
+            <button class="btn-primary" id="spellSubmit">Check ›</button>
+          </div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+        </div>
+        <button class="btn-outline" id="quitQuiz">✕ End Quiz</button>
+      </div>
+
+      <!-- Quiz Results Screen -->
+      <div class="quiz-results hidden" id="quizResults">
+        <div class="results-ring-wrap">
+          <svg class="results-ring" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50"/>
+          </svg>
+          <div class="results-pct" id="resultsPct">0%</div>
+        </div>
+        <div class="results-grade" id="resultsGrade">–</div>
+        <div class="results-stats">
+          <div class="rstat"><span id="rCorrect">0</span><small>Correct</small></div>
+          <div class="rstat"><span id="rWrong">0</span><small>Wrong</small></div>
+          <div class="rstat"><span id="rStreak">0</span><small>Best Streak</small></div>
+        </div>
+        <div class="results-review" id="resultsReview"></div>
+        <div class="results-actions">
+          <button class="btn-outline" id="retryQuiz">↺ Retry</button>
+          <button class="btn-primary" id="newQuiz">New Quiz ›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ VERB HUB VIEW ═══ -->
+    <section class="view" id="view-verbhub">
+      <div class="view-hero">
+        <h1 class="view-title"><em>Verb</em> Hub</h1>
+        <p class="view-subtitle">Deep-dive into German verbs — conjugations, examples, and drills.</p>
+      </div>
+      <div class="vh-controls">
+        <input type="text" id="vhSearch" class="search-input" placeholder="Search verbs…" style="max-width:320px" />
+        <div class="filter-chips">
+          <button class="chip active" data-vhcat="all">All Verbs</button>
+          <button class="chip" data-vhcat="modal">Modal</button>
+          <button class="chip" data-vhcat="separable">Separable</button>
+          <button class="chip" data-vhcat="reflexive">Reflexive</button>
+          <button class="chip" data-vhcat="irregular">Irregular</button>
+        </div>
+      </div>
+      <div class="vh-grid" id="vhGrid"></div>
+      <!-- Verb Detail Modal -->
+      <div class="modal-overlay hidden" id="verbModal">
+        <div class="modal-box" id="verbModalBox">
+          <button class="modal-close" id="verbModalClose">✕</button>
+          <div id="verbModalContent"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+  <script>
+    // Register service worker for offline support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.warn('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

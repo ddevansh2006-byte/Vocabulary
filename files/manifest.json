@@ -1,0 +1,24 @@
+{
+  "name": "Deutsch Meister — German Vocabulary Trainer",
+  "short_name": "DeutschMeister",
+  "description": "Interactive German vocabulary and verb training with flashcards, quizzes, and spaced repetition.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0d14",
+  "theme_color": "#d4af50",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
